@@ -11,6 +11,9 @@ import CardContent from '@material-ui/core/CardContent';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Input from '@material-ui/core/Input';
 
 // NEVER store private keys in any source code in your real life development
 // This is for demo purposes only!
@@ -51,10 +54,22 @@ class Index extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      noteTable: []
+      contracts: [],
+      contract: {contractName: "Create"},
+      userContracts: [],
+      user: "",
     };
     this.handleFormEvent = this.handleFormEvent.bind(this);
   }
+
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+    console.log(event.target.name + ":" + event.target.value)
+  };
+
+  handleUserChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
   // generic function to handle form events (e.g. "submit" / "reset")
   // push transactions to the blockchain by using eosjs
@@ -63,12 +78,13 @@ class Index extends Component {
     event.preventDefault();
 
     // collect form data
-    let company = event.target.company.value;
+    let company = event.target.user.value;
     let employee = event.target.employee.value;
     let companyAddress = event.target.companyAddress.value;
     let employeeAddress = event.target.employeeAddress.value;
     let privateKey = event.target.companyPrivateKey.value;
     let content = event.target.content.value;
+    let contractName = event.target.contractName.value;
 
     // prepare variables for the switch below to send transactions
     let actionName = "";
@@ -77,13 +93,14 @@ class Index extends Component {
     // define actionName and action according to event type
     switch (event.type) {
       case "submit":
-        actionName = "sign";
+        actionName = "create";
         actionData = {
           _employee:        employee,
           _content:         content,
           _company:         company,
           _employeeAddress: employeeAddress,
-          _companyAddress: companyAddress
+          _companyAddress: companyAddress,
+          _contractName: contractName
         };
         break;
       default:
@@ -117,11 +134,12 @@ class Index extends Component {
       "json": true,
       "code": "ndaacc",   // contract who owns the table
       "scope": "ndaacc",  // scope of the table
-      "table": "records",    // name of the table as specified by the contract abi
+      "table": "records1",    // name of the table as specified by the contract abi
       "limit": 100,
     }).then(result =>{
       console.log('table found ')
-      this.setState({ noteTable: result.rows });
+      this.setState({ contracts: result.rows });
+      
       console.log(result.rows);
     } );
   }
@@ -132,9 +150,23 @@ class Index extends Component {
   }
 
   render() {
-    const { noteTable } = this.state;
-    const { classes } = this.props;
 
+  var obj = {a:1,b:2}
+  var {a} = obj; // var a = obj['a']
+    
+    const { classes } = this.props;
+    //const contractItems = this.state.contracts ? this.state.contracts : [];
+    const {contracts} = this.state;
+
+    //const contractItems  = this.state.contracts;
+    const generateContractItem = (key, name) => (
+      <MenuItem value={key}>{name}</MenuItem>
+    );
+    let contractElements = contracts.map((row, i)=>{
+      return generateContractItem(row.prim_key, row.employeeName);
+    });
+    console.log("...."+ contractElements.length)
+    console.log(contractElements)
     return (
       <div>
         <AppBar position="static" color="default">
@@ -148,11 +180,12 @@ class Index extends Component {
         <Paper className={classes.paper}>
           <form onSubmit={this.handleFormEvent}>
             <TextField
-              name="company"
+              name="user"
               autoComplete="off"
-              label="Company"
+              label="User"
               margin="normal"
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
               name="companyPrivateKey"
@@ -161,6 +194,18 @@ class Index extends Component {
               margin="normal"
               fullWidth
             />
+            <Select
+              value={this.state.contract.employeeName}
+              onChange={this.handleChange}
+              input={<Input name="contract" id="contract" />}
+              label="Select Contract"
+              fullWidth
+            >
+              <MenuItem value="create">
+                <em>Create</em>
+              </MenuItem>
+              {contractElements}
+            </Select>
             <TextField
               name="companyAddress"
               autoComplete="off"
@@ -171,14 +216,7 @@ class Index extends Component {
             <TextField
               name="employee"
               autoComplete="off"
-              label="Employee Full Name"
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              name="employeePrivateKey"
-              autoComplete="off"
-              label="Employe Private key"
+              label="Employee to sign"
               margin="normal"
               fullWidth
             />
@@ -186,6 +224,14 @@ class Index extends Component {
               name="employeeAddress"
               autoComplete="off"
               label="Company Address"
+              margin="normal"
+              fullWidth
+            />
+
+            <TextField
+              name="contractName"
+              autoComplete="off"
+              label="Name of contract"
               margin="normal"
               fullWidth
             />

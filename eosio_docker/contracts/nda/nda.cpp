@@ -8,7 +8,7 @@ class nda : public eosio::contract {
    
       
    private:
-                        
+      /// @abi table records1                  
       struct record {
          account_name owner; // primary key
          uint32_t     prim_key;
@@ -27,7 +27,7 @@ class nda : public eosio::contract {
          account_name get_by_company() const    { return company; }
       };
 
-      typedef eosio::multi_index< N(records), record,
+      typedef eosio::multi_index< N(records1), record,
          eosio::indexed_by<N(bycompany), eosio::const_mem_fun<record, account_name, &record::get_by_company> >
       > record_table;
 
@@ -48,7 +48,7 @@ class nda : public eosio::contract {
             rec.contractSigned = false;
          });
       };
-
+      /// @abi action
       void sign( account_name _user, uint64_t contract_prim_key ) {
       // to sign the action with the given account
         require_auth( _user );
