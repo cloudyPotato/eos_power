@@ -55,7 +55,7 @@ class Index extends Component {
     super(props)
     this.state = {
       contracts: [],
-      contract: {contractName: "Create"},
+      contract: "Create",
       userContracts: [],
       user: "",
     };
@@ -85,23 +85,35 @@ class Index extends Component {
     let privateKey = event.target.companyPrivateKey.value;
     let content = event.target.content.value;
     let contractName = event.target.contractName.value;
+    //let contractKey = event.target.
 
     // prepare variables for the switch below to send transactions
     let actionName = "";
     let actionData = {};
 
     // define actionName and action according to event type
+    console.log(this.state)
     switch (event.type) {
       case "submit":
-        actionName = "create";
-        actionData = {
-          _employee:        employee,
-          _content:         content,
-          _company:         company,
-          _employeeAddress: employeeAddress,
-          _companyAddress: companyAddress,
-          _contractName: contractName
-        };
+        if(this.state.contract === "Create"){
+          actionName = "create";
+          actionData = {
+            _employee:        employee,
+            _content:         content,
+            _company:         company,
+            _employeeAddress: employeeAddress,
+            _companyAddress: companyAddress,
+            _contractName: contractName
+          };
+        }
+        else{
+           actionName = "sign";
+           actionData = {
+            _user:        company,
+            contract_prim_key:     this.state.contract
+          };
+        }
+        
         break;
       default:
         return;
@@ -151,8 +163,8 @@ class Index extends Component {
 
   render() {
 
-  var obj = {a:1,b:2}
-  var {a} = obj; // var a = obj['a']
+ // var obj = {a:1,b:2}
+  //var {a} = obj; // var a = obj['a']
     
     const { classes } = this.props;
     //const contractItems = this.state.contracts ? this.state.contracts : [];
@@ -163,7 +175,7 @@ class Index extends Component {
       <MenuItem value={key}>{name}</MenuItem>
     );
     let contractElements = contracts.map((row, i)=>{
-      return generateContractItem(row.prim_key, row.employeeName);
+      return generateContractItem(row.prim_key, row.contractName);
     });
     console.log("...."+ contractElements.length)
     console.log(contractElements)
@@ -195,7 +207,7 @@ class Index extends Component {
               fullWidth
             />
             <Select
-              value={this.state.contract.employeeName}
+              value={this.state.contract.prim_key}
               onChange={this.handleChange}
               input={<Input name="contract" id="contract" />}
               label="Select Contract"
@@ -223,7 +235,7 @@ class Index extends Component {
             <TextField
               name="employeeAddress"
               autoComplete="off"
-              label="Company Address"
+              label="Employee Address"
               margin="normal"
               fullWidth
             />
