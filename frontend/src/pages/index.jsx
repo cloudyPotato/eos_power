@@ -63,9 +63,12 @@ class Index extends Component {
     event.preventDefault();
 
     // collect form data
-    let account = event.target.account.value;
-    let privateKey = event.target.privateKey.value;
-    let note = event.target.note.value;
+    let company = event.target.company.value;
+    let employee = event.target.employee.value;
+    let companyAddress = event.target.companyAddress.value;
+    let employeeAddress = event.target.employeeAddress.value;
+    let privateKey = event.target.companyPrivateKey.value;
+    let content = event.target.content.value;
 
     // prepare variables for the switch below to send transactions
     let actionName = "";
@@ -74,10 +77,13 @@ class Index extends Component {
     // define actionName and action according to event type
     switch (event.type) {
       case "submit":
-        actionName = "create";
+        actionName = "sign";
         actionData = {
-          _user: account,
-          _note: note,
+          _employee:        employee,
+          _content:         content,
+          _company:         company,
+          _employeeAddress: employeeAddress,
+          _companyAddress: companyAddress
         };
         break;
       default:
@@ -88,10 +94,10 @@ class Index extends Component {
     const eos = Eos({keyProvider: privateKey});
     const result = await eos.transaction({
       actions: [{
-        account: "notechainacc",
+        account: "ndaacc",
         name: actionName,
         authorization: [{
-          actor: account,
+          actor: company,
           permission: 'active',
         }],
         data: actionData,
@@ -105,17 +111,23 @@ class Index extends Component {
   // gets table data from the blockchain
   // and saves it into the component state: "noteTable"
   getTable() {
+  console.log("inside get table")
     const eos = Eos();
     eos.getTableRows({
       "json": true,
-      "code": "notechainacc",   // contract who owns the table
-      "scope": "notechainacc",  // scope of the table
-      "table": "notestruct",    // name of the table as specified by the contract abi
+      "code": "ndaacc",   // contract who owns the table
+      "scope": "ndaacc",  // scope of the table
+      "table": "records",    // name of the table as specified by the contract abi
       "limit": 100,
-    }).then(result => this.setState({ noteTable: result.rows }));
+    }).then(result =>{
+      console.log('table found ')
+      this.setState({ noteTable: result.rows });
+      console.log(result.rows);
+    } );
   }
 
   componentDidMount() {
+    console.log("calling get table")
     this.getTable();
   }
 
@@ -136,28 +148,50 @@ class Index extends Component {
         <Paper className={classes.paper}>
           <form onSubmit={this.handleFormEvent}>
             <TextField
-              name="account"
+              name="company"
               autoComplete="off"
-              label="User"
+              label="Company"
               margin="normal"
               fullWidth
             />
             <TextField
-              name="privateKey"
+              name="companyPrivateKey"
               autoComplete="off"
-              label="Private key"
+              label="Company Private key"
               margin="normal"
               fullWidth
             />
             <TextField
-              name="name"
+              name="companyAddress"
               autoComplete="off"
-              label="Full Name"
+              label="Company Address"
               margin="normal"
               fullWidth
             />
             <TextField
-              name="note"
+              name="employee"
+              autoComplete="off"
+              label="Employee Full Name"
+              margin="normal"
+              fullWidth
+            />
+            <TextField
+              name="employeePrivateKey"
+              autoComplete="off"
+              label="Employe Private key"
+              margin="normal"
+              fullWidth
+            />
+            <TextField
+              name="employeeAddress"
+              autoComplete="off"
+              label="Company Address"
+              margin="normal"
+              fullWidth
+            />
+
+            <TextField
+              name="content"
               autoComplete="off"
               label="Contract"
               margin="normal"
