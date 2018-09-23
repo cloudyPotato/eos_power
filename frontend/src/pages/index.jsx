@@ -51,7 +51,7 @@ class Index extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      noteTable: [] // to store the table rows from smart contract
+      noteTable: []
     };
     this.handleFormEvent = this.handleFormEvent.bind(this);
   }
@@ -123,41 +123,22 @@ class Index extends Component {
     const { noteTable } = this.state;
     const { classes } = this.props;
 
-    // generate each note as a card
-    const generateCard = (key, timestamp, user, note) => (
-      <Card className={classes.card} key={key}>
-        <CardContent>
-          <Typography variant="headline" component="h2">
-            {user}
-          </Typography>
-          <Typography style={{fontSize:12}} color="textSecondary" gutterBottom>
-            {new Date(timestamp*1000).toString()}
-          </Typography>
-          <Typography component="pre">
-            {note}
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-    let noteCards = noteTable.map((row, i) =>
-      generateCard(i, row.timestamp, row.user, row.note));
-
     return (
       <div>
         <AppBar position="static" color="default">
           <Toolbar>
             <Typography variant="title" color="inherit">
-              Note Chain
+              Clear Contract
             </Typography>
           </Toolbar>
         </AppBar>
-        {noteCards}
+        
         <Paper className={classes.paper}>
           <form onSubmit={this.handleFormEvent}>
             <TextField
               name="account"
               autoComplete="off"
-              label="Account"
+              label="User"
               margin="normal"
               fullWidth
             />
@@ -169,20 +150,28 @@ class Index extends Component {
               fullWidth
             />
             <TextField
-              name="note"
+              name="name"
               autoComplete="off"
-              label="Note (Optional)"
+              label="Full Name"
               margin="normal"
-              multiline
-              rows="10"
               fullWidth
             />
+            <TextField
+              name="note"
+              autoComplete="off"
+              label="Contract"
+              margin="normal"
+              multiline
+              rows="30"
+              fullWidth
+            />
+
             <Button
               variant="contained"
               color="primary"
               className={classes.formButton}
               type="submit">
-              Add / Update note
+              Sign
             </Button>
           </form>
         </Paper>
